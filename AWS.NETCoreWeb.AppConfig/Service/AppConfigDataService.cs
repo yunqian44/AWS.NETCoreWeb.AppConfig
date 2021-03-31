@@ -16,7 +16,7 @@ namespace AWS.NETCoreWeb.AppConfig.Service
         private readonly IAppConfigService _appConfigService;
 
         public AppConfigDataService(Guid clientId,
-            AppConfigService appConfigService)
+            IAppConfigService appConfigService)
         {
             _clientId = clientId;
             _appConfigService = appConfigService;

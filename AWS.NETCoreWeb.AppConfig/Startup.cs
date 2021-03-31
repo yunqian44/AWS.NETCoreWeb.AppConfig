@@ -38,14 +38,11 @@ namespace AWS.NETCoreWeb.AppConfig
 
             services.AddSingleton(new Appsettings(Env.ContentRootPath));
 
-            services.AddDbContext<UserContext>(options => options.UseMySql(Appsettings.app("MySql")));
-
-
             // 注入 应用层Application
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IAppConfigDataService, AppConfigDataService>(x=>new AppConfigDataService(Guid.NewGuid(),x.GetRequiredService<AppConfigService>()));
+            services.AddScoped<IAppConfigDataService, AppConfigDataService>(x=>new AppConfigDataService(Guid.NewGuid(),x.GetRequiredService<IAppConfigService>()));
             services.AddScoped<IAppConfigService, AppConfigService>(x => new AppConfigService(Guid.NewGuid(), x.GetRequiredService<AmazonAppConfigClient>()));
-            services.AddSingleton<AmazonAppConfigClient>(x=> new AmazonAppConfigClient(Appsettings.app("AWS", "AWSAccessKey"), Appsettings.app("AWS", "AWSSecretKey"),RegionEndpoint.APNortheast1));
+            services.AddScoped<AmazonAppConfigClient>(x=> new AmazonAppConfigClient(Appsettings.app("AWS", "AWSAccessKey"), Appsettings.app("AWS", "AWSSecretKey"),RegionEndpoint.APNortheast1));
 
             // 注入 基础设施层 - 数据层
             services.AddScoped<IUserRepository, UserRepository>();
@@ -54,6 +51,12 @@ namespace AWS.NETCoreWeb.AppConfig
             services.AddAutoMapper(typeof(AutoMapperConfig));
             //启动配置
             AutoMapperConfig.RegisterMappings();
+
+            services.AddDbContext<UserContext>();
+
+            //services.AddDbContext<UserContext>(options=>options.UseMySql(Appsettings.app("MySql")));
+            //services.AddScoped(UserContext);
+            //services.AddScoped<UserContext>(x =>new UserContext(x.GetRequiredService<DbContextOptions<UserContext>>(), x.GetRequiredService<AppConfigDataService>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

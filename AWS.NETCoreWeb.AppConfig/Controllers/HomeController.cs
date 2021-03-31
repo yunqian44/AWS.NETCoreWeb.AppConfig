@@ -16,11 +16,15 @@ namespace AWS.NETCoreWeb.AppConfig.Controllers
 
         private readonly IUserService _userService;
 
+        private readonly IAppConfigDataService _appConfigDataService;
+
         public HomeController(IUserService userService
-            , ILogger<HomeController> logger)
+            , ILogger<HomeController> logger,
+           IAppConfigDataService appConfigDataService)
         {
             _userService = userService;
             _logger = logger;
+            _appConfigDataService = appConfigDataService;
         }
 
         public IActionResult Index()
@@ -28,8 +32,13 @@ namespace AWS.NETCoreWeb.AppConfig.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Privacy()
         {
+            var appconfig = await _appConfigDataService.GetAppConfigData();
+            if (!(appconfig is null) && appconfig.BoolEnableLimitResults)
+            {
+                return View(_userService.GetAll().Where(x=>x.Id<= appconfig.IntResultLimit));
+            }
             return View(_userService.GetAll());
         }
 
