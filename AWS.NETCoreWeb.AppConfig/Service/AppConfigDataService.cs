@@ -1,5 +1,7 @@
 ﻿using Amazon.AppConfig.Model;
 using AWS.NETCoreWeb.AppConfig.Core;
+using AWS.NETCoreWeb.AppConfig.Extension;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,38 +13,29 @@ namespace AWS.NETCoreWeb.AppConfig.Service
     {
         private readonly Guid _clientId;
 
-        public AppConfigDataService(Guid clientId)
+        private readonly IAppConfigService _appConfigService;
+
+        public AppConfigDataService(Guid clientId,
+            AppConfigService appConfigService)
         {
             _clientId = clientId;
+            _appConfigService = appConfigService;
         }
 
         public async Task<AppConfigData> GetAppConfigData()
         {
             if (DateTime.UtcNow > AppConstants.TimeToLiveExpiration || String.IsNullOrEmpty(AppConstants.ClientConfigurationVersion))
             {
-                Console.WriteLine("CALLED GetConfigurationAPI to get AppConfigData  \n");
-                IAppConfigService appConfigService = new AppConfigService(_clientId);
-
                 // get Amazon.AppConfig.Model.GetConfigurationResponse from GetConfiguration API Call
-                GetConfigurationResponse getConfigurationResponse = await appConfigService.GetConfigurationResponse();
+                GetConfigurationResponse getConfigurationResponse = await _appConfigService.GetConfigurationResponse();
 
-
-                // add ConfigurationVersion to AppConstants to AppConstants to be used in subsequent calls to GetConfugration API to avopid excess charges
-                // https://docs.aws.amazon.com/appconfig/2019-10-09/APIReference/API_GetConfiguration.html#API_GetConfiguration_RequestSyntax
                 AppConstants.ClientConfigurationVersion = getConfigurationResponse.ConfigurationVersion;
 
-
-                // The GetConfiguration response includes a Content section (i.e., our getConfigurationResponse.Content) that shows the configuration data.
-                // The Content section only appears if the system finds new or updated configuration data.
-                // If the system doesn't find new or updated configuration data, then the Content section is not returned (Null).
-                // https://docs.aws.amazon.com/appconfig/latest/userguide/appconfig-retrieving-the-configuration.html
-                string decodedResponseData = getConfigurationResponse.Content.Length > 0 ? MemoryStreamHelper.DecodeMemoryStreamToString(getConfigurationResponse.Content) : String.Empty;
+                string decodedResponseData = getConfigurationResponse.Content.Length > 0 ? getConfigurationResponse.Content.DecodeMemoryStreamToString() : String.Empty;
 
 
                 // convert DecodedResponseData to our AppConfigData model which consists of:
-                // bool boolEnableLimitResults
-                // int intResultLimit
-                AppConfigData appConfigData = this.ConvertDecodedResponseToAppConfigData(decodedResponseData);
+                AppConfigData appConfigData = String.IsNullOrEmpty(decodedResponseData) ? AppConstants.AppConfigData : JsonConvert.DeserializeObject<AppConfigData>(decodedResponseData);
 
                 // add AppConfigData to our cache in AppConstants
                 AppConstants.AppConfigData = appConfigData;

@@ -12,17 +12,20 @@ namespace AWS.NETCoreWeb.AppConfig.Service
     public class AppConfigService : IAppConfigService
     {
         private readonly Guid _clientId;
+        private readonly AmazonAppConfigClient _AmazonAppConfigClient;
 
-        public AppConfigService(Guid clientId)
+        public AppConfigService(Guid clientId,
+            AmazonAppConfigClient amazonAppConfigClient)
         {
             _clientId = clientId;
+            _AmazonAppConfigClient = amazonAppConfigClient;
         }
 
         public async Task<GetConfigurationResponse> GetConfigurationResponse()
         {
-            
-            var amazonAppConfigClient = Program.AwsOptions.CreateServiceClient<IAmazonAppConfig>();
-            var amazonAppConfigClient = new AmazonAppConfigClient("AKIA2C2TL65VGJ7DOGQX", "xy8DIdJBkTTxxUO7DyGVVuvJo2LCFO/K7UVhbNdF", RegionEndpoint.APNortheast1);
+
+            //var amazonAppConfigClient = Program.AwsOptions.CreateServiceClient<IAmazonAppConfig>();
+            var amazonAppConfigClient = _AmazonAppConfigClient;
 
             var request = new GetConfigurationRequest
             {
