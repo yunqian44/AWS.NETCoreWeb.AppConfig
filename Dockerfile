@@ -16,7 +16,7 @@ WORKDIR "/src/AWS.NETCoreWeb.AppConfig"
 RUN dotnet build "AWS.NETCoreWeb.AppConfig.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "AWS.NETCoreWeb.AppConfig.csproj" -c Release --self-contained --runtime linux-x64 -o /app/publish  
+RUN dotnet publish "AWS.NETCoreWeb.AppConfig.csproj" -c Release -o /app/publish  
 
 # --runtime alpine-x64 --self-contained true
 
