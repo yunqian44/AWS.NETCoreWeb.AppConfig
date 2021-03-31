@@ -13,7 +13,7 @@ namespace AWS.NETCoreWeb.AppConfig.Common
     /// </summary>
     public class Appsettings
     {
-        static IConfiguration Configuration { get; set; }
+        static Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set; }
         static string contentPath { get; set; }
 
         public Appsettings(string contentPath)
