@@ -1,5 +1,4 @@
-﻿using AutoMapper.Configuration;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ namespace AWS.NETCoreWeb.AppConfig.Common
     /// </summary>
     public class Appsettings
     {
-        static Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set; }
+        static IConfiguration Configuration { get; set; }
         static string contentPath { get; set; }
 
         public Appsettings(string contentPath)
