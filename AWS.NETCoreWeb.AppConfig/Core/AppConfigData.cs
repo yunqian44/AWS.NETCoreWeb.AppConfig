@@ -7,10 +7,8 @@ namespace AWS.NETCoreWeb.AppConfig.Core
 {
     public class AppConfigData
     {
-        public string MysqlHost { get; set; }
+        public bool BoolEnableLimitResults { get; set; }
 
-        public string DBName { get; set; }
-
-        public string DBPassWord { get; set; }
+        public int IntResultLimit { get; set; }
     }
 }
