@@ -1,3 +1,6 @@
+using Amazon;
+using Amazon.AppConfig;
+using AWS.NETCoreWeb.AppConfig.Common;
 using AWS.NETCoreWeb.AppConfig.Data;
 using AWS.NETCoreWeb.AppConfig.Repository.Implements;
 using AWS.NETCoreWeb.AppConfig.Repository.Interface;
@@ -18,21 +21,31 @@ namespace AWS.NETCoreWeb.AppConfig
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            Env = env;
         }
 
         public IConfiguration Configuration { get; }
+
+        public IWebHostEnvironment Env { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddDbContext<UserContext>(options => options.UseMySql("server=database-2.cdiostsnewls.ap-northeast-1.rds.amazonaws.com;uid=admin;pwd=Passw0rd;database=CnBateBlogWeb1"));
+
+            services.AddSingleton(new Appsettings(Env.ContentRootPath));
+
+            services.AddDbContext<UserContext>(options => options.UseMySql(Appsettings.app("MySql")));
+
 
             // 注入 应用层Application
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAppConfigDataService, AppConfigDataService>(x=>new AppConfigDataService(Guid.NewGuid(),x.GetRequiredService<AppConfigService>()));
+            services.AddScoped<IAppConfigService, AppConfigService>(x => new AppConfigService(Guid.NewGuid(), x.GetRequiredService<AmazonAppConfigClient>()));
+            services.AddSingleton<AmazonAppConfigClient>(x=> new AmazonAppConfigClient(Appsettings.app("AWS", "AWSAccessKey"), Appsettings.app("AWS", "AWSSecretKey"),RegionEndpoint.APNortheast1));
 
             // 注入 基础设施层 - 数据层
             services.AddScoped<IUserRepository, UserRepository>();
