@@ -33,7 +33,14 @@ namespace AWS.NETCoreWeb.AppConfig.Extension
                 byte[] decodedBytes = Convert.FromBase64String(Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(charArray)));
                 result = System.Text.Encoding.UTF8.GetString(decodedBytes);
             }
-            return result + "\r\n}";
+            if (result.EndsWith("\n\0\0"))
+            {
+                return result.Replace("\n\0\0", "\n}");
+            }
+            else
+            {
+                return result;
+            }
         }
     }
 }
