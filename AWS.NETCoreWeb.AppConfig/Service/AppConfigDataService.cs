@@ -33,9 +33,16 @@ namespace AWS.NETCoreWeb.AppConfig.Service
 
                 string decodedResponseData = getConfigurationResponse.Content.Length > 0 ? getConfigurationResponse.Content.DecodeMemoryStreamToString() : String.Empty;
 
-
+                AppConstants.AppConfigData = null;
                 // convert DecodedResponseData to our AppConfigData model which consists of:
-                AppConfigData appConfigData = String.IsNullOrEmpty(decodedResponseData) ? AppConstants.AppConfigData : JsonConvert.DeserializeObject<AppConfigData>(decodedResponseData);
+                //AppConfigData appConfigData = String.IsNullOrEmpty(decodedResponseData) ? AppConstants.AppConfigData : JsonConvert.DeserializeObject<AppConfigData>(decodedResponseData);
+
+                AppConfigData appConfigData = JsonConvert.DeserializeObject<AppConfigData>(decodedResponseData);
+
+                if (!appConfigData.BoolEnableLimitResults && appConfigData.IntResultLimit == 0)
+                {
+                    throw new Exception();
+                }
 
                 // add AppConfigData to our cache in AppConstants
                 AppConstants.AppConfigData = appConfigData;
